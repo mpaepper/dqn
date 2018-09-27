@@ -18,8 +18,8 @@ num_img_per_state = 4
 
 #from gym import wrappers
 
-env = atari_wrappers.make_atari(args.env_name)
-env = atari_wrappers.wrap_deepmind(env, frame_stack=True)
+env = atari_wrappers.make_atari(args.env_name) # Skip 4 frames per step, at the start of the game skip 0-30 steps
+env = atari_wrappers.wrap_deepmind(env, frame_stack=True) # scale images to (84,84), keep 4 images for state, clip rewards to 1, set losing life as game_over
 #env = wrappers.Monitor(env, '/tmp/pacman-randrun-1', force=True) # You can wrap it to record a video
 np.random.seed(123)
 env.seed(123)
