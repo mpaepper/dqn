@@ -30,7 +30,6 @@ class NoopResetEnv(gym.Wrapper):
             noops = self.unwrapped.np_random.randint(1, self.noop_max + 1) #pylint: disable=E1101
         assert noops > 0
         obs = None
-        print("waiting for ", noops)
         for _ in range(noops):
             obs, _, done, _ = self.env.step(self.noop_action)
             if done:

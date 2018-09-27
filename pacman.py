@@ -1,6 +1,6 @@
 import argparse
 import numpy as np
-import gym
+#from gym import wrappers
 
 from memory import ReplayMemory
 from policy import EpsilonPolicy
@@ -16,8 +16,6 @@ args = parser.parse_args()
 img_size = (84, 84)
 num_img_per_state = 4
 
-#from gym import wrappers
-
 env = atari_wrappers.make_atari(args.env_name) # Skip 4 frames per step, at the start of the game skip 0-30 steps
 env = atari_wrappers.wrap_deepmind(env, frame_stack=True) # scale images to (84,84), keep 4 images for state, clip rewards to 1, set losing life as game_over
 #env = wrappers.Monitor(env, '/tmp/pacman-randrun-1', force=True) # You can wrap it to record a video
@@ -26,7 +24,7 @@ env.seed(123)
 num_actions = env.action_space.n
 
 model = AtariDqnModel(num_actions=num_actions, input_shape=(img_size[0], img_size[1], num_img_per_state)).get_model()
-memory = ReplayMemory(maxlen=1000000) #, window_length=num_img_per_state)
+memory = ReplayMemory(maxlen=1000000)
 processor = AtariProcessor(input_size=img_size)
 policy = EpsilonPolicy(epsilon_max=1.0, epsilon_min=0.1, decay_steps=1250000)
 
