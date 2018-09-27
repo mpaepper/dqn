@@ -19,16 +19,16 @@ class DQNAgent:
 
     def act(self, current_frame):
         q_values = self.model.predict(self.processor.process_batch(np.array([self.state])))
-        action = self.policy.get_action(q_values, current_frame)
+        action = self.policy.get_action(q_values, current_frame) # TODO: q_values are only needed if epsilon policy does NOT act randomly!
         next_state, reward, game_over, info = self.env.step(action)
         next_state_processed = self.processor.process(next_state)
         reward_processed = self.processor.process_reward(reward)
-        self.memory.storeObservation(self.state, action, reward_processed, next_state_processed, game_over)
+        self.memory.store_observation(self.state, action, reward_processed, next_state_processed, game_over)
         self.state = next_state_processed
         return reward_processed, game_over
 
     def learn(self):
-        states, actions, rewards, next_states, game_overs = self.memory.getReplays(self.batch_size)
+        states, actions, rewards, next_states, game_overs = self.memory.get_replays(self.batch_size)
         states = self.processor.process_batch(states)
         next_states = self.processor.process_batch(next_states)
         q_values_next = self.model.predict(np.array(next_states))
