@@ -42,7 +42,7 @@ class DQNAgent:
                 actual_values[idx, i] = expectedValues[idx]
         self.model.fit(states, actual_values, verbose=0)
 
-    def fit(self, num_steps=4000000, skip_start=30, start_train=50000, max_episode_score=1000):
+    def fit(self, num_steps=4000000, skip_start=30, start_train=50000, max_episode_score=1000, learn_every=4):
         tracker = Tracker()
         self.start_new_episode(skip_start)
         game_over = False
@@ -53,7 +53,7 @@ class DQNAgent:
             reward, game_over = self.act(i)
             self.episode_rewards += reward
 
-            if (i >= start_train):
+            if i >= start_train and i % learn_every == 0:
                 self.learn()
 
     def start_new_episode(self, skip_start):
