@@ -6,14 +6,11 @@ class AtariProcessor:
        self.input_size = input_size
 
     def process(self, state):
-        img = Image.fromarray(state)
-        img = img.resize(self.input_size).convert('L')
-        processed_observation = np.array(img)
-        return processed_observation.astype('uint8').reshape(self.input_size[0], self.input_size[1], 1) # TODO Reshape only as workaround
+        return state # Conversion to input_size is already handled by the environment (WarpFrame wrapper)
 
     def process_batch(self, batch):
-        processed_batch = batch.astype('float32') / 255.
+        processed_batch = batch.astype('float32') / 255. # Convert int to float32, b/c int is 4 times smaller in storage
         return processed_batch
 
     def process_reward(self, reward):
-        return np.clip(reward, -1., 1.)
+        return reward # Reward clipping is handled by the environment (ClipRewardEnv wrapper)

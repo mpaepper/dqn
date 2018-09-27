@@ -42,23 +42,21 @@ class DQNAgent:
                 actual_values[idx, i] = expectedValues[idx]
         self.model.fit(states, actual_values, verbose=0)
 
-    def fit(self, num_steps=4000000, skip_start=30, start_train=50000, max_episode_score=1000, learn_every=4):
+    def fit(self, num_steps=4000000, start_train=50000, max_episode_score=1000, learn_every=4):
         tracker = Tracker()
-        self.start_new_episode(skip_start)
+        self.start_new_episode()
         game_over = False
         for i in range(num_steps):
             if game_over or self.episode_rewards >= max_episode_score:
                 tracker.track(self.episode_rewards, i, self.policy.get_epsilon(i))
-                self.start_new_episode(skip_start)
+                self.start_new_episode()
             reward, game_over = self.act(i)
             self.episode_rewards += reward
 
             if i >= start_train and i % learn_every == 0:
                 self.learn()
 
-    def start_new_episode(self, skip_start):
-        self.env.reset()
-        for skip in range(skip_start):
-            state, reward, _, _ = self.env.step(0)
-        self.state = self.processor.process(state)
+    def start_new_episode(self):
+        self.state = self.processor.process(self.env.reset())
+        # Skipping of start steps is done by NoopResetEnv wrapper in environment
         self.episode_rewards = 0
