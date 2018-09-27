@@ -10,7 +10,7 @@ class EpsilonPolicy:
     def get_action(self, q_values, frame):
         if np.random.random() <= self.get_epsilon(frame):
             num_actions = len(q_values)
-            return np.random.choice(num_actions, 1)[0]
+            return np.random.choice(num_actions)
         else:
             return np.argmax(q_values)
 
