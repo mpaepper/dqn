@@ -38,6 +38,9 @@ class DQNAgent:
         y_true = Input(name='y_true', batch_shape=(None, num_actions))
         masks = Input(name='masks', batch_shape=(None, num_actions))
 
+        def avg_max_q(y_true, y_pred):
+            return K.mean(K.max(y_pred, axis=-1))
+
         def compute_loss(inputs):
             y_pred, y_true, masks = inputs
             diff = K.abs(y_true - y_pred)
@@ -47,7 +50,7 @@ class DQNAgent:
 
         loss = Lambda(compute_loss, output_shape=(1,))([y_pred, y_true, masks])
         self.trainable_model = Model(inputs=[model_input] + [y_true, masks], outputs=loss)
-        self.trainable_model.compile(optimizer=optimizer, metrics=[], loss=[lambda y_true, y_pred: y_pred]) # loss is calculated by Lambda layer, so output y_pred
+        self.trainable_model.compile(optimizer=optimizer, metrics=[avg_max_q], loss=[lambda y_true, y_pred: y_pred]) # loss is calculated by Lambda layer, so output y_pred
         self.trainable_model.summary()
 
     def act(self, current_frame):
@@ -58,7 +61,7 @@ class DQNAgent:
         reward_processed = self.processor.process_reward(reward)
         self.memory.store_observation(self.state, action, reward_processed, next_state_processed, game_over)
         self.state = next_state_processed
-        return reward_processed, game_over
+        return reward_processed, game_over, action
 
     def learn(self):
         states, actions, rewards, next_states, game_overs = self.memory.get_replays(self.batch_size)
@@ -72,22 +75,24 @@ class DQNAgent:
         for idx, action in enumerate(actions):
             masks[idx, action] = 1.
             y_true[idx, action] = expected_values[idx]
-        self.trainable_model.fit([states, y_true, masks], y_true, verbose=0)
+        return self.trainable_model.fit([states, y_true, masks], y_true, verbose=0)
 
     def fit(self, num_steps=4000000, start_train=50000, max_episode_score=1000, learn_every=4, update_target_model=10000):
         tracker = Tracker()
         self.start_new_episode()
         game_over = False
+        keras_log_data = []
         for i in range(num_steps):
             if game_over or self.episode_rewards >= max_episode_score:
-                tracker.track(self.episode_rewards, i, self.policy.get_epsilon(i))
+                tracker.print_episode(self.episode_rewards, i, self.policy.get_epsilon(i), keras_log_data)
                 self.start_new_episode()
-            reward, game_over = self.act(i)
+            reward, game_over, action = self.act(i)
+            tracker.log(reward, action)
             self.episode_rewards += reward
 
             if i >= start_train:
                 if i % learn_every == 0:
-                    self.learn()
+                    keras_log_data = self.learn()
                 if i % update_target_model == 0:
                     self.update_target_model()
 
