@@ -7,11 +7,11 @@ class EpsilonPolicy:
         self.epsilon_min = epsilon_min
         self.decay_steps = decay_steps
 
-    def get_action(self, q_values, frame):
+    def get_action(self, get_q_values_func, num_actions, frame):
         if np.random.random() <= self.get_epsilon(frame):
-            num_actions = len(q_values)
             return np.random.choice(num_actions)
         else:
+            q_values = get_q_values_func()
             return np.argmax(q_values)
 
     def get_epsilon(self, frame):

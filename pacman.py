@@ -23,10 +23,10 @@ np.random.seed(123)
 env.seed(123)
 num_actions = env.action_space.n
 
-model = AtariDqnModel(num_actions=num_actions, input_shape=(img_size[0], img_size[1], num_img_per_state)).get_model()
+model = AtariDqnModel(num_actions=num_actions, input_shape=(img_size[0], img_size[1], num_img_per_state), learning_rate=0.00025)
 memory = ReplayMemory(maxlen=1000000)
 processor = AtariProcessor(input_size=img_size)
 policy = EpsilonPolicy(epsilon_max=1.0, epsilon_min=0.1, decay_steps=1250000)
 
 dqn = DQNAgent(env=env, memory=memory, policy=policy, batch_size=32, model=model, discount_rate=0.99, processor=processor)
-dqn.fit(num_steps=4000000, start_train=1000, learn_every=4)
+dqn.fit(num_steps=4000000, start_train=1000, learn_every=4, update_target_model=5000)

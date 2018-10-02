@@ -31,7 +31,7 @@ class ReplayMemory:
             for col, value in zip(cols, memory):
                 col.append(value)
         cols = [np.array(col) for col in cols]
-        return (cols[0], cols[1].reshape(-1, 1), cols[2].reshape(-1, 1), cols[3], cols[4].reshape(-1,1))
+        return (cols[0], cols[1], cols[2].reshape(-1, 1), cols[3], cols[4].reshape(-1,1))
 
 class ReplayMemoryStatic:
     def __init__(self, maxlen=1000000, image_size=(84,84), minibatch_size=32):
