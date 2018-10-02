@@ -24,7 +24,7 @@ class Tracker:
               .format(frame, self.episode, frame_elapsed, reward, mean_reward, speed, epsilon))
         episode_averages = np.mean(np.array(self.logs), axis=0)
         print("Mean reward per step: {:.2}, Mean action: {:.2}".format(episode_averages[0], episode_averages[1]))
-        value_dict = {'reward': reward, 'mean_reward': mean_reward, 'speed': speed, 'epsilon': epsilon}
+        value_dict = {'reward': reward, 'mean_reward': mean_reward, 'speed': speed, 'epsilon': epsilon, 'step_reward': episode_averages[0], 'mean_action': episode_averages[1]}
         self.log_tensorboard(value_dict, self.episode)
         if keras_log_data:
             keras_metrics = [i for i in keras_log_data.params['metrics']]
