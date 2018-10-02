@@ -16,7 +16,7 @@ def copy_model(model):
 
 class DQNAgent:
     def __init__(self, env=None, memory=ReplayMemory(10000), policy=EpsilonPolicy(),
-                 batch_size=32, model=None, discount_rate=None, processor=None, gradient_clip = 1.0):
+                 batch_size=32, model=None, discount_rate=None, processor=None, gradient_clip = 1.0, weights_filename='./rl_agent.h5'):
         super(DQNAgent, self).__init__()
         self.env = env
         self.memory = memory
@@ -31,6 +31,7 @@ class DQNAgent:
         self.episode_rewards = 0
         self.state = None
         self.processor = processor
+        self.weights_filename = weights_filename
 
     def setup_trainable_model(self, optimizer, gradient_clip, num_actions):
         model_input = self.model.input
@@ -77,7 +78,7 @@ class DQNAgent:
             y_true[idx, action] = expected_values[idx]
         return self.trainable_model.fit([states, y_true, masks], y_true, verbose=0)
 
-    def fit(self, num_steps=4000000, start_train=50000, max_episode_score=1000, learn_every=4, update_target_model=10000):
+    def fit(self, num_steps=4000000, start_train=50000, max_episode_score=1000, learn_every=4, update_target_model=10000, save_every = 100000):
         tracker = Tracker()
         self.start_new_episode()
         game_over = False
@@ -95,6 +96,8 @@ class DQNAgent:
                     keras_log_data = self.learn()
                 if i % update_target_model == 0:
                     self.update_target_model()
+                if i % save_every == 0:
+                    self.model.save_weights(self.weights_filename)
 
     def update_target_model(self):
         self.target_model.set_weights(self.model.get_weights())
