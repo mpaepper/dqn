@@ -16,3 +16,8 @@ class EpsilonPolicy:
 
     def get_epsilon(self, frame):
         return max(self.epsilon_min, self.epsilon_max - (self.epsilon_max - self.epsilon_min) * frame / self.decay_steps)
+
+class MaxQPolicy:
+    def get_action(self, get_q_values_func, num_actions, frame):
+        q_values = get_q_values_func()
+        return np.argmax(q_values)

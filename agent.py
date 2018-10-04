@@ -7,6 +7,7 @@ from keras.models import load_model, Model, Input
 from keras.layers import Lambda
 from keras.optimizers import Adam
 import tensorflow as tf
+import time
 
 
 def copy_model(model):
@@ -54,10 +55,13 @@ class DQNAgent:
         self.trainable_model.compile(optimizer=optimizer, metrics=[avg_max_q], loss=[lambda y_true, y_pred: y_pred]) # loss is calculated by Lambda layer, so output y_pred
         self.trainable_model.summary()
 
-    def act(self, current_frame):
+    def act(self, current_frame, visualize=False):
         get_q_values = lambda: self.model.predict(self.processor.process_batch(np.array([self.state])))[0]
         action = self.policy.get_action(get_q_values, self.num_actions, current_frame)
         next_state, reward, game_over, info = self.env.step(action)
+        if (visualize):
+            time.sleep(0.05)
+            self.env.render()
         next_state_processed = self.processor.process(next_state)
         reward_processed = self.processor.process_reward(reward)
         self.memory.store_observation(self.state, action, reward_processed, next_state_processed, game_over)
@@ -106,3 +110,10 @@ class DQNAgent:
         self.state = self.processor.process(self.env.reset())
         # Skipping of start steps is done by NoopResetEnv wrapper in environment
         self.episode_rewards = 0
+
+    def play(self, visualize=True):
+        self.start_new_episode()
+        game_over = False
+        while not game_over:
+            reward, game_over, action = self.act(current_frame=0, visualize=visualize)
+        self.env.close()
