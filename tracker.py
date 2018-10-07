@@ -2,7 +2,13 @@ import time
 import numpy as np
 import tensorflow as tf
 
+
 class Tracker:
+    """The Tracker prints important information during training and logs the important values to TensorBoard.
+    Arguments:
+        window_size -- The size of the time window to average over
+        log_dir -- the log directory where to store the information for tensor board
+    """
     def __init__(self, window_size=50, log_dir='./tf_logs'):
         self.time = time.time()
         self.episode = 0
@@ -13,6 +19,13 @@ class Tracker:
         self.writer = tf.summary.FileWriter(log_dir)
 
     def print_episode(self, reward, frame, epsilon, keras_log_data):
+        """
+        Prints information about the current episode.
+        :param reward: the reward obtained during the episode
+        :param frame: the current frame step number
+        :param epsilon: the current epsilon value
+        :param keras_log_data: the metrics obtained by Keras when training started
+        """
         current_time = time.time()
         time_elapsed = current_time - self.time
         frame_elapsed = frame - self.frame
@@ -37,9 +50,11 @@ class Tracker:
         self.time = current_time
 
     def log(self, reward, action):
+        """Log information about the current action taken  and the reward obtained"""
         self.logs.append([reward, action])
 
     def log_tensorboard(self, value_dict, step):
+        """Log the parameters of the dictionary value_dict to tensor board at the given time step."""
         for key, value in value_dict.items():
             summary = tf.Summary(value=[tf.Summary.Value(tag=key, simple_value=value)])
             self.writer.add_summary(summary, step)

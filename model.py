@@ -4,6 +4,16 @@ from keras.optimizers import Adam
 
 
 class AtariDqnModel:
+    """
+    Basic Keras model with the classic DQN architecture of using convolutional layers followed by ReLU layers and a Dense layer in the end.
+    Arguments:
+        input_shape -- Shape of the input to the CNN
+        data_format -- Whether the channels are in the last or first position of the input_shape
+        num_actions -- Number of actions for the game
+        learning_rate -- Learning rate used for the optimizer
+        show_summary -- Whether to show a summary of the model
+        load_weights_file -- When given a file name, will load the existing weights from there
+    """
     def __init__(self, input_shape=(84, 84, 1), data_format='channels_last', num_actions=9, learning_rate=0.00025, show_summary=True, load_weights_file=None):
         self.num_actions = num_actions
         self.learning_rate = learning_rate

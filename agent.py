@@ -16,6 +16,19 @@ def copy_model(model):
 
 
 class DQNAgent:
+    """
+    A DQN agent implementing basic deep Q learning.
+    Arguments:
+        env -- The environment to interact with (usually open gym)
+        memory -- The class used as the replay memory
+        policy -- A policy implementation for choosing an action
+        batch_size -- Number of items to train with during a batch update
+        model -- The neural network model which is used to represent the agent's behavior
+        discount_rate -- The discount_rate gamma which is used to discount the future (usual values are 0.95-0.99)
+        processor -- A processor can be used to change rewards and states. This is e.g. helpful to save states with less memory and then use the processor to put them into the right data format.
+        gradient_clip -- To clip the amount of backpropagation gradient, so large errors do not shake the network up too much
+        weights_filename -- Name of the weights file where the agent will save the learned weights
+    """
     def __init__(self, env=None, memory=ReplayMemory(10000), policy=EpsilonPolicy(),
                  batch_size=32, model=None, discount_rate=None, processor=None, gradient_clip = 1.0, weights_filename='./rl_agent.h5'):
         super(DQNAgent, self).__init__()
@@ -35,6 +48,13 @@ class DQNAgent:
         self.weights_filename = weights_filename
 
     def setup_trainable_model(self, optimizer, gradient_clip, num_actions):
+        """
+        This method transforms the neural network model to be learnable by introducing a Lambda layer to calculate the error.
+        The Lambda layer ensures that only the actions that were actually taken from the agent will affect the learning.
+        :param optimizer: The optimizer to use for learning, e.g. Adam
+        :param gradient_clip: The amount of gradient_clipping to use to make sure that large gradients do not disturb the network too much
+        :param num_actions: The number of actions which the agent can decide between
+        """
         model_input = self.model.input
         y_pred = self.model.output
         y_true = Input(name='y_true', batch_shape=(None, num_actions))
@@ -56,6 +76,12 @@ class DQNAgent:
         self.trainable_model.summary()
 
     def act(self, current_frame, visualize=False):
+        """
+        Decide on an action for the current state and act in the environment.
+        :param current_frame: The number of the current frame
+        :param visualize: If set to True, the environment will render the game
+        :return: the reward obtained, whether the game is over, the action taken
+        """
         get_q_values = lambda: self.model.predict(self.processor.process_batch(np.array([self.state])))[0]
         action = self.policy.get_action(get_q_values, self.num_actions, current_frame)
         next_state, reward, game_over, info = self.env.step(action)
@@ -69,6 +95,10 @@ class DQNAgent:
         return reward_processed, game_over, action
 
     def learn(self):
+        """
+        Uses the replay memory to train on a batch.
+        :return: The metrics of the trainable_model's fit method
+        """
         states, actions, rewards, next_states, game_overs = self.memory.get_replays(self.batch_size)
         states = self.processor.process_batch(states)
         next_states = self.processor.process_batch(next_states)
@@ -83,6 +113,15 @@ class DQNAgent:
         return self.trainable_model.fit([states, y_true, masks], y_true, verbose=0)
 
     def fit(self, num_steps=4000000, start_train=50000, max_episode_score=1000, learn_every=4, update_target_model=10000, save_every = 100000):
+        """
+        Train the agent for num_steps in the environment.
+        :param num_steps: number of steps to take
+        :param start_train: number of steps to only play before starting the training (fill up the memory)
+        :param max_episode_score: maximum score on a game to stop an episode
+        :param learn_every: Ratio of playing the game vs. training a batch. 4 means for every 4 steps played, train a full batch from replay memory.
+        :param update_target_model: Update the target model after every update_target_model steps
+        :param save_every: Save the model weights after every save_every steps
+        """
         tracker = Tracker()
         self.start_new_episode()
         game_over = False
@@ -104,14 +143,17 @@ class DQNAgent:
                     self.model.save_weights(self.weights_filename)
 
     def update_target_model(self):
+        """Update the target model with the weights of the model"""
         self.target_model.set_weights(self.model.get_weights())
 
     def start_new_episode(self):
+        """Reset the environment and the rewards"""
         self.state = self.processor.process(self.env.reset())
         # Skipping of start steps is done by NoopResetEnv wrapper in environment
         self.episode_rewards = 0
 
     def play(self, visualize=True):
+        """Method used to play a game and visualize it. This is used after having already trained the agent."""
         self.start_new_episode()
         game_over = False
         while not game_over:
