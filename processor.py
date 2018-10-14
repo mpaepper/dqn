@@ -19,3 +19,17 @@ class AtariProcessor:
     def process_reward(self, reward):
         """Process the given reward"""
         return reward # Reward clipping is handled by the environment (ClipRewardEnv wrapper)
+
+class VoidProcessor:
+    """
+    The VoidProcessor does nothing
+    """
+
+    def process(self, state):
+        return state
+
+    def process_batch(self, batch):
+        return batch
+
+    def process_reward(self, reward):
+        return reward
