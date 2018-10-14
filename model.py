@@ -48,3 +48,38 @@ class AtariDqnModel:
 
     def get_optimizer(self):
         return self.optimizer
+
+class FullyConnectedModel:
+    """
+    FullyConnectedModel consists of fully connected neural networks with ReLU layers.
+    """
+    def __init__(self, neurons_per_layer=100, state_size=4, num_layers=3, num_actions=2, learning_rate=0.00025, show_summary=True, load_weights_file=None):
+        self.num_actions = num_actions
+        self.learning_rate = learning_rate
+        player = Sequential()
+        player.add(Dense(neurons_per_layer, input_dim=state_size, kernel_initializer='glorot_uniform'))
+        player.add(Activation('relu'))
+        for i in range(num_layers-1):
+            player.add(Dense(neurons_per_layer, kernel_initializer='glorot_uniform'))
+            player.add(Activation('relu'))
+        player.add(Dense(num_actions, kernel_initializer='glorot_uniform'))
+        player.add(Activation('linear'))
+        player.compile(optimizer=Adam(lr=learning_rate), loss='mse')
+        if load_weights_file != None:
+            print("Loading model weights from " + load_weights_file)
+            player.load_weights(load_weights_file)
+        if show_summary:
+            player.summary()
+        self.model = player
+
+    def get_nn_model(self):
+        return self.model
+
+    def get_num_actions(self):
+        return self.num_actions
+
+    def get_learning_rate(self):
+        return self.learning_rate
+
+    def get_optimizer(self):
+        return self.optimizer
