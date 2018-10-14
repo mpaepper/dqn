@@ -156,6 +156,9 @@ class DQNAgent:
         """Method used to play a game and visualize it. This is used after having already trained the agent."""
         self.start_new_episode()
         game_over = False
+        total_reward = 0.0
         while not game_over:
             reward, game_over, action = self.act(current_frame=0, visualize=visualize)
+            total_reward += reward
+        print("The agent achieved a reward of {}".format(total_reward))
         self.env.close()
