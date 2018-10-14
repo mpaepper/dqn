@@ -1,3 +1,7 @@
+import sys
+import os.path
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
+
 import argparse
 import numpy as np
 #from gym import wrappers
