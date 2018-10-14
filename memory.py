@@ -4,11 +4,12 @@ class ReplayMemory:
     """
     A ReplayMemory saves a maximum of maxlen experiences and provides methods to store and retrieve them.
     """
-    def __init__(self, maxlen=1000000):
+    def __init__(self, maxlen=1000000, game_over_bias=0):
         self.maxlen = maxlen
         self.buf = np.empty(shape=maxlen, dtype=np.object)
         self.index = 0
         self.length = 0
+        self.game_over_bias = game_over_bias # Store the game_over transition game_over_bias times more often (to have mini prioritized replay memory)
 
     def append(self, data):
         """
@@ -45,6 +46,8 @@ class ReplayMemory:
         """
         if (game_over):
             reward = -1
+            for _ in range(self.game_over_bias):
+                self.append([state, action, reward, next_state, game_over])
         self.append([state, action, reward, next_state, game_over])
 
     def get_replays(self, num_plays):
