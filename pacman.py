@@ -12,7 +12,7 @@ import atari_wrappers
 parser = argparse.ArgumentParser()
 parser.add_argument('--env-name', type=str, default='MsPacmanNoFrameskip-v4') # See environment possibilities: https://github.com/openai/gym/blob/5cb12296274020db9bb6378ce54276b31e7002da/gym/envs/__init__.py#L298-L376
 parser.add_argument('--test', type=bool, default=False)
-parser.add_argument('--weights', type=str, default='./pacman.h5')
+parser.add_argument('--weights', type=str, default=None)
 args = parser.parse_args()
 
 img_size = (84, 84)
