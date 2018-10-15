@@ -75,7 +75,7 @@ class DQNAgent:
         self.trainable_model.compile(optimizer=optimizer, metrics=[avg_max_q], loss=[lambda y_true, y_pred: y_pred]) # loss is calculated by Lambda layer, so output y_pred
         self.trainable_model.summary()
 
-    def act(self, current_frame, visualize=False):
+    def act(self, current_frame, visualize=False, delay=0.05):
         """
         Decide on an action for the current state and act in the environment.
         :param current_frame: The number of the current frame
@@ -86,7 +86,7 @@ class DQNAgent:
         action = self.policy.get_action(get_q_values, self.num_actions, current_frame)
         next_state, reward, game_over, info = self.env.step(action)
         if (visualize):
-            time.sleep(0.05)
+            time.sleep(delay)
             self.env.render()
         next_state_processed = self.processor.process(next_state)
         reward_processed = self.processor.process_reward(reward)
@@ -152,13 +152,13 @@ class DQNAgent:
         # Skipping of start steps is done by NoopResetEnv wrapper in environment
         self.episode_rewards = 0
 
-    def play(self, visualize=True):
+    def play(self, visualize=True, delay=0.05):
         """Method used to play a game and visualize it. This is used after having already trained the agent."""
         self.start_new_episode()
         game_over = False
         total_reward = 0.0
         while not game_over:
-            reward, game_over, action = self.act(current_frame=0, visualize=visualize)
+            reward, game_over, action = self.act(current_frame=0, visualize=visualize, delay=delay)
             total_reward += reward
         print("The agent achieved a reward of {}".format(total_reward))
         self.env.close()
