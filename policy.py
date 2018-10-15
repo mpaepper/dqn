@@ -47,3 +47,10 @@ class MaxQPolicy:
         """
         q_values = get_q_values_func()
         return np.argmax(q_values)
+
+class RandomPolicy:
+    """
+    RandomPolicy chooses a random action each time
+    """
+    def get_action(self, get_q_values_func, num_actions, frame):
+        return np.random.choice(num_actions)
