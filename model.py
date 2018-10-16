@@ -1,7 +1,7 @@
 from keras.models import Sequential
-from keras.layers import Dense, Flatten, Conv2D, Activation
+from keras.layers import Dense, Flatten, Conv2D, Activation, Lambda
 from keras.optimizers import Adam
-
+import keras.backend as K
 
 class AtariDqnModel:
     """
@@ -14,7 +14,7 @@ class AtariDqnModel:
         show_summary -- Whether to show a summary of the model
         load_weights_file -- When given a file name, will load the existing weights from there
     """
-    def __init__(self, input_shape=(84, 84, 1), data_format='channels_last', num_actions=9, learning_rate=0.00025, show_summary=True, load_weights_file=None):
+    def __init__(self, input_shape=(84, 84, 1), data_format='channels_last', num_actions=9, learning_rate=0.00025, show_summary=True, load_weights_file=None, use_dueling=True):
         self.num_actions = num_actions
         self.learning_rate = learning_rate
         player = Sequential()
@@ -28,7 +28,11 @@ class AtariDqnModel:
         player.add(Flatten())
         player.add(Dense(512))
         player.add(Activation('relu'))
-        player.add(Dense(num_actions, activation='linear'))
+        if (use_dueling):
+            player.add(Dense(num_actions + 1, activation='linear')) # +1 for the neuron which calculates the value
+            player.add(Lambda(lambda x: K.expand_dims(x[:, 0], -1) + x[:, 1:] - K.mean(x[:, 1:], axis=1, keepdims=True))) # Take value neuron x[:, 0], add advances x[:, 1:] and subtract mean of advances
+        else:
+            player.add(Dense(num_actions, activation='linear'))
         player.compile(optimizer=Adam(lr=learning_rate), loss='mse')
         if (load_weights_file != None):
             print("Loading model weights from " + load_weights_file)
@@ -53,7 +57,7 @@ class FullyConnectedModel:
     """
     FullyConnectedModel consists of fully connected neural networks with ReLU layers.
     """
-    def __init__(self, neurons_per_layer=100, state_size=4, num_layers=3, num_actions=2, learning_rate=0.00025, show_summary=True, load_weights_file=None):
+    def __init__(self, neurons_per_layer=100, state_size=4, num_layers=3, num_actions=2, learning_rate=0.00025, show_summary=True, load_weights_file=None, use_dueling=True):
         self.num_actions = num_actions
         self.learning_rate = learning_rate
         player = Sequential()
@@ -62,8 +66,11 @@ class FullyConnectedModel:
         for i in range(num_layers-1):
             player.add(Dense(neurons_per_layer, kernel_initializer='glorot_uniform'))
             player.add(Activation('relu'))
-        player.add(Dense(num_actions, kernel_initializer='glorot_uniform'))
-        player.add(Activation('linear'))
+        if (use_dueling):
+            player.add(Dense(num_actions + 1, activation='linear', kernel_initializer='glorot_uniform')) # +1 for the neuron which calculates the value
+            player.add(Lambda(lambda x: K.expand_dims(x[:, 0], -1) + x[:, 1:] - K.mean(x[:, 1:], axis=1, keepdims=True))) # Take value neuron x[:, 0], add advances x[:, 1:] and subtract mean of advances
+        else:
+            player.add(Dense(num_actions, activation='linear', kernel_initializer='glorot_uniform'))
         player.compile(optimizer=Adam(lr=learning_rate), loss='mse')
         if load_weights_file != None:
             print("Loading model weights from " + load_weights_file)
