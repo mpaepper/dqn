@@ -17,8 +17,12 @@ An easy environment to try out is the cartpole environment which has only 4 stat
 
 The cartpole architecture uses two layers of five neurons and a final layer of two neurons for the two possible actions.
 
+![Cartpole gif](examples/cartpole.gif)
+
 ## Pacman
 
 * To see Pacman doing random actions, you can run "python examples/pacman_random.py".
 * To train an agent playing the Atari game of MsPacman, simply run "python examples/pacman.py" which will run for 4 million steps, so beware that this will take quite a while (around 12 hours using a GPU).
 * To test your learned agent afterwards, run: "python examples/pacman.py --weights=pacman.h5 --test=True". This will run an episode and visualize that episode.
+
+![Pacman gif](examples/pacman.gif)
