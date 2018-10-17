@@ -3,7 +3,7 @@
 This library can be used to train an agent using deep Q learning.
 It follows the default CNN architecture used in the paper [Playing Atari with Deep Reinforcement Learning](https://arxiv.org/abs/1312.5602).
 
-A reinforcement agent needs an environment/game in which to play, a memory (where and how to store experiences), a policy (how to act), a model (the neural network to be trained) and a processor (this is for mainly to save some memory in the storage) which you need to pass the agent on creation.
+A reinforcement agent needs an environment/game in which to play, a memory (where and how to store experiences), a policy (how to act), a model (the neural network to be trained) and a processor (this is mainly to save some memory in the storage) which you need to pass the agent on creation.
 
 There are some examples of how to pass these items to the agent in the examples/ folder:
 
