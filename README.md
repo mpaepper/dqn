@@ -3,6 +3,24 @@
 This library can be used to train an agent using deep Q learning.
 It follows the default CNN architecture used in the paper [Playing Atari with Deep Reinforcement Learning](https://arxiv.org/abs/1312.5602).
 
-Run python pacman.py to let an agent learn how to play the game MsPacman.
+There are some examples how to use the library in the examples/ folder:
 
-Run python pacman.py --test=True to visualize the learned agent playing a game after training.
+## Cartpole
+
+An easy environment to try out is the cartpole environment which has only 4 state variables and is thus fast to train and easy to play with.
+
+To execute a random episode of cartpole where the agent is acting randomly, you can run "python examples/cartpole_random.py".
+
+To train an agent to play cartpole for 10.000 steps, simply run "python examples/cartpole.py". This should be very fast to run (around a minute). It will output some debug information of the progress.
+
+After training, you can test your cartpole agent by running: "python examples/cartpole.py --weights=cartpole.h5 --test=True".
+
+The cartpole architecture uses two layers of five neurons and a final layer of two neurons for the two possible actions.
+
+## Pacman
+
+To see Pacman doing random actions, you can run "python examples/pacman_random.py".
+
+To train an agent playing the Atari game of MsPacman, simply run "python examples/pacman.py" which will run for 4 million steps, so beware that this will take quite a while (around 12 hours using a GPU).
+
+To test your learned agent afterwards, run: "python examples/pacman.py --weights=pacman.h5 --test=True". This will run an episode and visualize that episode.
