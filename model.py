@@ -18,21 +18,20 @@ class AtariDqnModel:
         self.num_actions = num_actions
         self.learning_rate = learning_rate
         player = Sequential()
-        player.add(
-            Conv2D(32, input_shape=input_shape, kernel_size=(8, 8), strides=(4, 4), data_format=data_format))
+        player.add(Conv2D(32, input_shape=input_shape, kernel_size=(8, 8), strides=(4, 4), data_format=data_format, kernel_initializer='glorot_uniform'))
         player.add(Activation('relu'))
-        player.add(Conv2D(64, kernel_size=(4, 4), strides=(2, 2), data_format=data_format))
+        player.add(Conv2D(64, kernel_size=(4, 4), strides=(2, 2), data_format=data_format, kernel_initializer='glorot_uniform'))
         player.add(Activation('relu'))
-        player.add(Conv2D(64, kernel_size=(3, 3), strides=(1, 1), data_format=data_format))
+        player.add(Conv2D(64, kernel_size=(3, 3), strides=(1, 1), data_format=data_format, kernel_initializer='glorot_uniform'))
         player.add(Activation('relu'))
         player.add(Flatten())
-        player.add(Dense(512))
+        player.add(Dense(512, kernel_initializer='glorot_uniform'))
         player.add(Activation('relu'))
         if (use_dueling):
-            player.add(Dense(num_actions + 1, activation='linear')) # +1 for the neuron which calculates the value
+            player.add(Dense(num_actions + 1, activation='linear', kernel_initializer='glorot_uniform')) # +1 for the neuron which calculates the value
             player.add(Lambda(lambda x: K.expand_dims(x[:, 0], -1) + x[:, 1:] - K.mean(x[:, 1:], axis=1, keepdims=True))) # Take value neuron x[:, 0], add advances x[:, 1:] and subtract mean of advances
         else:
-            player.add(Dense(num_actions, activation='linear'))
+            player.add(Dense(num_actions, activation='linear', kernel_initializer='glorot_uniform'))
         player.compile(optimizer=Adam(lr=learning_rate), loss='mse')
         if (load_weights_file != None):
             print("Loading model weights from " + load_weights_file)
