@@ -24,9 +24,9 @@ np.random.seed(123)
 env.seed(123)
 num_actions = env.action_space.n
 
-model = FullyConnectedModel(num_actions=num_actions, neurons_per_layer=5, num_layers=2, learning_rate=0.002, load_weights_file=args.weights)
+model = FullyConnectedModel(num_actions=num_actions, neurons_per_layer=5, num_layers=2, learning_rate=0.002, load_weights_file=args.weights, use_dueling=True)
 
-memory = ReplayMemory(maxlen=10000, game_over_bias=10)
+memory = ReplayMemory(maxlen=1000, game_over_bias=5)
 processor = VoidProcessor()
 
 if (args.test):
@@ -35,5 +35,5 @@ if (args.test):
     dqn.play()
 else:
     policy = EpsilonPolicy(epsilon_max=1.0, epsilon_min=0.05, decay_steps=10000)
-    dqn = DQNAgent(env=env, memory=memory, policy=policy, batch_size=128, model=model, discount_rate=0.99, processor=processor, weights_filename='./cartpole.h5')
-    dqn.fit(num_steps=10000, start_train=1000, learn_every=1, update_target_model=100, save_every=1000, max_episode_score=500)
+    dqn = DQNAgent(env=env, memory=memory, policy=policy, batch_size=64, model=model, discount_rate=0.99, processor=processor, weights_filename='./cartpole.h5')
+    dqn.fit(num_steps=20000, start_train=1000, learn_every=1, update_target_model=100, save_every=1000, max_episode_score=500)
